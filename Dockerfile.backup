@@ -30,7 +30,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
+# Let Railway set the PORT dynamically
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -45,10 +45,10 @@ COPY --chown=nodejs:nodejs package*.json ./
 
 USER nodejs
 
-EXPOSE 3000
+EXPOSE $PORT
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+# Remove health check for now - let Railway handle it
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#   CMD node -e "require('http').get('http://localhost:$PORT/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 CMD ["npm", "start"]
