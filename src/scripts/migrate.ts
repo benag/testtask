@@ -1,5 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
+
 import pool from '../config/database';
 
 async function runMigrations(): Promise<void> {
@@ -11,12 +16,17 @@ async function runMigrations(): Promise<void> {
   console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
   console.log('DATABASE_URL preview:', process.env.DATABASE_URL?.substring(0, 50) + '...');
   
+  // Use same fallback as database config
+  const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:jhbsd73b@database-1.cn8k6a26wgvi.us-east-1.rds.amazonaws.com:5432/task_manager';
+  
+  console.log('Migration using DATABASE_URL:', DATABASE_URL.substring(0, 50) + '...');
+  
   // Explicit check for DATABASE_URL
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not set!');
+  if (!DATABASE_URL) {
+    throw new Error('DATABASE_URL is required!');
   }
   
-  if (process.env.DATABASE_URL.includes('127.0.0.1') || process.env.DATABASE_URL.includes('localhost')) {
+  if (DATABASE_URL.includes('127.0.0.1') || DATABASE_URL.includes('localhost')) {
     throw new Error('DATABASE_URL is pointing to localhost instead of RDS!');
   }
   
@@ -82,15 +92,20 @@ async function runMigrations(): Promise<void> {
 
 // Run migrations if this file is executed directly
 if (require.main === module) {
-  runMigrations()
-    .then(() => {
-      console.log('Migration process completed');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Migration process failed:', error);
-      process.exit(1);
-    });
+  console.log('⏭️  Skipping migrations - database already set up');
+  console.log('Migration process completed (skipped)');
+  process.exit(0);
+  
+  // Commented out for Railway deployment since RDS is already set up
+  // runMigrations()
+  //   .then(() => {
+  //     console.log('Migration process completed');
+  //     process.exit(0);
+  //   })
+  //   .catch((error) => {
+  //     console.error('Migration process failed:', error);
+  //     process.exit(1);
+  //   });
 }
 
 export { runMigrations };

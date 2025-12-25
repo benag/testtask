@@ -11,7 +11,7 @@
     "build:backend": "tsc",
     "build:frontend": "cd client && npm run build",
     "start": "node dist/server.js",
-    "migrate": "node dist/scripts/migrate.js",
+    "migrate:disabled": "echo 'Migrations skipped - RDS already configured'",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
