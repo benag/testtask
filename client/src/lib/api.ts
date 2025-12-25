@@ -147,6 +147,11 @@ export const adminAPI = {
     return response.data;
   },
 
+  getAllTranslations: async (): Promise<ApiResponse<Translation[]>> => {
+    const response = await api.get('/admin/translations/all');
+    return response.data;
+  },
+
   createTranslation: async (translation: TranslationRequest): Promise<ApiResponse<Translation>> => {
     const response = await api.post('/admin/translations', translation);
     return response.data;

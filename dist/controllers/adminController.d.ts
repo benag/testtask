@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 export declare class AdminController {
     getStats(req: AuthRequest, res: Response): Promise<void>;
+    getUsers(req: AuthRequest, res: Response): Promise<void>;
     getLanguages(req: AuthRequest, res: Response): Promise<void>;
     createLanguage(req: AuthRequest, res: Response): Promise<void>;
     updateLanguage(req: AuthRequest, res: Response): Promise<void>;
@@ -10,6 +11,9 @@ export declare class AdminController {
     updateTranslationKey(req: AuthRequest, res: Response): Promise<void>;
     deleteTranslationKey(req: AuthRequest, res: Response): Promise<void>;
     getTranslations(req: AuthRequest, res: Response): Promise<void>;
+    createTranslation(req: AuthRequest, res: Response): Promise<void>;
+    updateTranslationById(req: AuthRequest, res: Response): Promise<void>;
+    deleteTranslationById(req: AuthRequest, res: Response): Promise<void>;
     updateTranslation(req: AuthRequest, res: Response): Promise<void>;
     deleteTranslation(req: AuthRequest, res: Response): Promise<void>;
     exportTranslations(req: AuthRequest, res: Response): Promise<void>;

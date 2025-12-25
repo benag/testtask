@@ -9,6 +9,7 @@ const adminController = new adminController_1.AdminController();
 router.use(auth_1.authenticateToken);
 router.use(auth_1.requireAdmin);
 router.get('/stats', adminController.getStats.bind(adminController));
+router.get('/users', adminController.getUsers.bind(adminController));
 router.get('/languages', adminController.getLanguages.bind(adminController));
 router.post('/languages', (0, validation_1.validateRequest)(validation_1.schemas.createLanguage), adminController.createLanguage.bind(adminController));
 router.put('/languages/:id', adminController.updateLanguage.bind(adminController));
@@ -17,6 +18,9 @@ router.post('/translation-keys', (0, validation_1.validateRequest)(validation_1.
 router.put('/translation-keys/:id', adminController.updateTranslationKey.bind(adminController));
 router.delete('/translation-keys/:id', adminController.deleteTranslationKey.bind(adminController));
 router.get('/translations', adminController.getTranslations.bind(adminController));
+router.post('/translations', adminController.createTranslation.bind(adminController));
+router.put('/translations/:id', adminController.updateTranslationById.bind(adminController));
+router.delete('/translations/:id', adminController.deleteTranslationById.bind(adminController));
 router.put('/translations/:keyId/:languageCode', (0, validation_1.validateRequest)(validation_1.schemas.updateTranslation), adminController.updateTranslation.bind(adminController));
 router.delete('/translations/:keyId/:languageCode', adminController.deleteTranslation.bind(adminController));
 router.get('/translations/export', adminController.exportTranslations.bind(adminController));

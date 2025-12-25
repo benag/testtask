@@ -65,6 +65,15 @@ class UserService {
         const query = 'UPDATE users SET preferred_language = $1 WHERE id = $2';
         await database_1.default.query(query, [language, userId]);
     }
+    async getAllUsers() {
+        const query = `
+      SELECT id, email, role, preferred_language, created_at, updated_at 
+      FROM users 
+      ORDER BY created_at DESC
+    `;
+        const result = await (0, database_1.queryWithRetry)(query, []);
+        return result.rows;
+    }
     async getUserStats() {
         const query = `
       SELECT 

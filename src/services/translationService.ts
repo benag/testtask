@@ -98,6 +98,54 @@ export class TranslationService {
   }
 
   // Translation management
+  async getAllTranslations(): Promise<Translation[]> {
+    const query = `
+      SELECT 
+        t.id,
+        t.translation_key_id,
+        t.language_id,
+        t.value,
+        t.created_at,
+        t.updated_at,
+        tk.key_name,
+        tk.description,
+        tk.category,
+        l.code as language_code,
+        l.name as language_name
+      FROM translations t
+      JOIN translation_keys tk ON t.translation_key_id = tk.id
+      JOIN languages l ON t.language_id = l.id
+      WHERE l.is_active = true
+      ORDER BY tk.key_name, l.name
+    `;
+
+    const result = await pool.query(query);
+    return result.rows.map(row => ({
+      id: row.id,
+      translation_key_id: row.translation_key_id,
+      language_id: row.language_id,
+      value: row.value,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      key: {
+        id: row.translation_key_id,
+        key_name: row.key_name,
+        description: row.description,
+        category: row.category,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      },
+      language: {
+        id: row.language_id,
+        code: row.language_code,
+        name: row.language_name,
+        is_active: true,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }
+    }));
+  }
+
   async getTranslationsWithDetails(): Promise<TranslationWithDetails[]> {
     const query = `
       SELECT 
@@ -284,5 +332,22 @@ export class TranslationService {
     } finally {
       client.release();
     }
+  }
+
+  async updateTranslationById(id: string, translationData: { value: string }): Promise<Translation | null> {
+    const query = `
+      UPDATE translations 
+      SET value = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING *
+    `;
+    const result = await pool.query(query, [id, translationData.value]);
+    return result.rows[0] || null;
+  }
+
+  async deleteTranslationById(id: string): Promise<boolean> {
+    const query = 'DELETE FROM translations WHERE id = $1';
+    const result = await pool.query(query, [id]);
+    return result.rowCount !== null && result.rowCount > 0;
   }
 }

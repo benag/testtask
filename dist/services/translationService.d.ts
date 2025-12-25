@@ -16,5 +16,9 @@ export declare class TranslationService {
         imported: number;
         errors: string[];
     }>;
+    updateTranslationById(id: string, translationData: {
+        value: string;
+    }): Promise<Translation | null>;
+    deleteTranslationById(id: string): Promise<boolean>;
 }
 //# sourceMappingURL=translationService.d.ts.map

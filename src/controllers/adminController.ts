@@ -34,6 +34,24 @@ export class AdminController {
     }
   }
 
+  // User management
+  async getUsers(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const users = await userService.getAllUsers();
+      
+      res.json({
+        success: true,
+        data: users
+      });
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
   // Language management
   async getLanguages(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -244,6 +262,129 @@ export class AdminController {
       });
     } catch (error) {
       console.error('Get translations error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  async getAllTranslations(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const translations = await translationService.getAllTranslations();
+      
+      res.json({
+        success: true,
+        data: translations
+      });
+    } catch (error) {
+      console.error('Get all translations error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  async createTranslation(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { key_id, language_code, value } = req.body;
+
+      if (!key_id || !language_code || !value) {
+        res.status(400).json({
+          success: false,
+          error: 'Key ID, language code, and value are required'
+        });
+        return;
+      }
+
+      const translation = await translationService.updateTranslation(
+        key_id, 
+        language_code, 
+        { value }
+      );
+
+      res.status(201).json({
+        success: true,
+        data: translation,
+        message: 'Translation created successfully'
+      });
+    } catch (error) {
+      console.error('Create translation error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  async updateTranslationById(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { value } = req.body;
+
+      if (!id || !value) {
+        res.status(400).json({
+          success: false,
+          error: 'Translation ID and value are required'
+        });
+        return;
+      }
+
+      // For now, we'll need to parse the ID to get keyId and languageCode
+      // This is a simplified approach - in production you might want a different strategy
+      const translation = await translationService.updateTranslationById(id, { value });
+
+      if (!translation) {
+        res.status(404).json({
+          success: false,
+          error: 'Translation not found'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: translation,
+        message: 'Translation updated successfully'
+      });
+    } catch (error) {
+      console.error('Update translation error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  async deleteTranslationById(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          error: 'Translation ID is required'
+        });
+        return;
+      }
+
+      const deleted = await translationService.deleteTranslationById(id);
+      
+      if (!deleted) {
+        res.status(404).json({
+          success: false,
+          error: 'Translation not found'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Translation deleted successfully'
+      });
+    } catch (error) {
+      console.error('Delete translation error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal server error'

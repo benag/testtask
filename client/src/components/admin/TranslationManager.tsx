@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Download, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Download, Upload, Search } from 'lucide-react';
 import { adminAPI } from '../../lib/api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
@@ -12,6 +12,7 @@ import type { Translation } from '../../types';
 export const TranslationManager: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTranslation, setEditingTranslation] = useState<Translation | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,7 +60,7 @@ export const TranslationManager: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'translations.json';
+      a.download = `translations-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -67,13 +68,48 @@ export const TranslationManager: React.FC = () => {
     },
   });
 
+  const importTranslationsMutation = useMutation({
+    mutationFn: adminAPI.importTranslations,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-translations'] });
+      alert('Translations imported successfully!');
+    },
+    onError: (error: any) => {
+      alert(`Import failed: ${error.response?.data?.error || error.message}`);
+    },
+  });
+
+  const handleImport = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const jsonData = JSON.parse(e.target?.result as string);
+          importTranslationsMutation.mutate(jsonData);
+        } catch (error) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    }
+    // Reset the input
+    event.target.value = '';
+  };
+
   const translations = translationsResponse?.data || [];
   const languages = (languagesResponse?.data || []) as string[];
 
   // Filter translations
   const filteredTranslations = translations.filter((translation: Translation) => {
-    const matchesSearch = translation.key?.key_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         translation.value.toLowerCase().includes(searchTerm.toLowerCase());
+    const keyName = translation.key?.key_name || '';
+    const value = translation.value || '';
+    const matchesSearch = keyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         value.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLanguage = selectedLanguage === 'all' || translation.language?.code === selectedLanguage;
     
     return matchesSearch && matchesLanguage;
@@ -125,12 +161,28 @@ export const TranslationManager: React.FC = () => {
             <span>Export</span>
           </Button>
           <Button
+            variant="outline"
+            onClick={handleImport}
+            className="flex items-center space-x-2"
+            isLoading={importTranslationsMutation.isPending}
+          >
+            <Upload className="w-4 h-4" />
+            <span>Import</span>
+          </Button>
+          <Button
             onClick={() => setShowForm(true)}
             className="flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span>Add Translation</span>
           </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </div>
       </div>
 

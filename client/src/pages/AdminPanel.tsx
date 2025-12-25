@@ -1,11 +1,13 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Users, Languages, BarChart3 } from 'lucide-react';
+import { Users, Languages, BarChart3, Globe, Key } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { Card, CardContent } from '../components/ui/Card';
 import { AdminStats } from '../components/admin/AdminStats';
 import { TranslationManager } from '../components/admin/TranslationManager';
 import { UserManager } from '../components/admin/UserManager';
+import { LanguageManager } from '../components/admin/LanguageManager';
+import { TranslationKeyManager } from '../components/admin/TranslationKeyManager';
 
 export const AdminPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -19,10 +21,22 @@ export const AdminPanel: React.FC = () => {
       current: location.pathname === '/admin',
     },
     {
+      name: 'Translation Keys',
+      href: '/admin/keys',
+      icon: Key,
+      current: location.pathname === '/admin/keys',
+    },
+    {
       name: 'Translations',
       href: '/admin/translations',
       icon: Languages,
       current: location.pathname === '/admin/translations',
+    },
+    {
+      name: 'Languages',
+      href: '/admin/languages',
+      icon: Globe,
+      current: location.pathname === '/admin/languages',
     },
     {
       name: 'Users',
@@ -67,7 +81,9 @@ export const AdminPanel: React.FC = () => {
       {/* Content */}
       <Routes>
         <Route path="/" element={<AdminStats />} />
+        <Route path="/keys" element={<TranslationKeyManager />} />
         <Route path="/translations" element={<TranslationManager />} />
+        <Route path="/languages" element={<LanguageManager />} />
         <Route path="/users" element={<UserManager />} />
       </Routes>
     </div>

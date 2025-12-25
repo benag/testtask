@@ -30,6 +30,22 @@ class AdminController {
             });
         }
     }
+    async getUsers(req, res) {
+        try {
+            const users = await userService.getAllUsers();
+            res.json({
+                success: true,
+                data: users
+            });
+        }
+        catch (error) {
+            console.error('Get users error:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Internal server error'
+            });
+        }
+    }
     async getLanguages(req, res) {
         try {
             const languages = await translationService.getLanguages();
@@ -219,6 +235,95 @@ class AdminController {
         }
         catch (error) {
             console.error('Get translations error:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Internal server error'
+            });
+        }
+    }
+    async createTranslation(req, res) {
+        try {
+            const { key_id, language_code, value } = req.body;
+            if (!key_id || !language_code || !value) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Key ID, language code, and value are required'
+                });
+                return;
+            }
+            const translation = await translationService.updateTranslation(key_id, language_code, { value });
+            res.status(201).json({
+                success: true,
+                data: translation,
+                message: 'Translation created successfully'
+            });
+        }
+        catch (error) {
+            console.error('Create translation error:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Internal server error'
+            });
+        }
+    }
+    async updateTranslationById(req, res) {
+        try {
+            const { id } = req.params;
+            const { value } = req.body;
+            if (!id || !value) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Translation ID and value are required'
+                });
+                return;
+            }
+            const translation = await translationService.updateTranslationById(id, { value });
+            if (!translation) {
+                res.status(404).json({
+                    success: false,
+                    error: 'Translation not found'
+                });
+                return;
+            }
+            res.json({
+                success: true,
+                data: translation,
+                message: 'Translation updated successfully'
+            });
+        }
+        catch (error) {
+            console.error('Update translation error:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Internal server error'
+            });
+        }
+    }
+    async deleteTranslationById(req, res) {
+        try {
+            const { id } = req.params;
+            if (!id) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Translation ID is required'
+                });
+                return;
+            }
+            const deleted = await translationService.deleteTranslationById(id);
+            if (!deleted) {
+                res.status(404).json({
+                    success: false,
+                    error: 'Translation not found'
+                });
+                return;
+            }
+            res.json({
+                success: true,
+                message: 'Translation deleted successfully'
+            });
+        }
+        catch (error) {
+            console.error('Delete translation error:', error);
             res.status(500).json({
                 success: false,
                 error: 'Internal server error'

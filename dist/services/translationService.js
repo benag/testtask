@@ -228,6 +228,21 @@ class TranslationService {
             client.release();
         }
     }
+    async updateTranslationById(id, translationData) {
+        const query = `
+      UPDATE translations 
+      SET value = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING *
+    `;
+        const result = await database_1.default.query(query, [id, translationData.value]);
+        return result.rows[0] || null;
+    }
+    async deleteTranslationById(id) {
+        const query = 'DELETE FROM translations WHERE id = $1';
+        const result = await database_1.default.query(query, [id]);
+        return result.rowCount !== null && result.rowCount > 0;
+    }
 }
 exports.TranslationService = TranslationService;
 //# sourceMappingURL=translationService.js.map

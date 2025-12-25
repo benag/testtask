@@ -13,6 +13,9 @@ router.use(requireAdmin);
 // Dashboard stats
 router.get('/stats', adminController.getStats.bind(adminController));
 
+// User management
+router.get('/users', adminController.getUsers.bind(adminController));
+
 // Language management
 router.get('/languages', adminController.getLanguages.bind(adminController));
 router.post('/languages', validateRequest(schemas.createLanguage), adminController.createLanguage.bind(adminController));
@@ -26,6 +29,12 @@ router.delete('/translation-keys/:id', adminController.deleteTranslationKey.bind
 
 // Translation management
 router.get('/translations', adminController.getTranslations.bind(adminController));
+router.get('/translations/all', adminController.getAllTranslations.bind(adminController));
+router.post('/translations', adminController.createTranslation.bind(adminController));
+router.put('/translations/:id', adminController.updateTranslationById.bind(adminController));
+router.delete('/translations/:id', adminController.deleteTranslationById.bind(adminController));
+
+// Legacy translation management (keeping for backward compatibility)
 router.put('/translations/:keyId/:languageCode', validateRequest(schemas.updateTranslation), adminController.updateTranslation.bind(adminController));
 router.delete('/translations/:keyId/:languageCode', adminController.deleteTranslation.bind(adminController));
 

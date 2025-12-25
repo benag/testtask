@@ -6,6 +6,7 @@ import { useTranslationStore } from './stores/translationStore';
 import { Layout } from './components/layout/Layout';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
+import { AdminLoginForm } from './components/auth/AdminLoginForm';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Dashboard } from './pages/Dashboard';
 import { Tasks } from './pages/Tasks';
@@ -38,6 +39,7 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/admin/login" element={<AdminLoginForm />} />
           
           {/* Protected routes */}
           <Route

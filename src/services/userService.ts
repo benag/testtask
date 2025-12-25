@@ -37,6 +37,16 @@ export class UserService {
     await pool.query(query, [language, userId]);
   }
 
+  async getAllUsers(): Promise<Omit<User, 'password_hash'>[]> {
+    const query = `
+      SELECT id, email, role, preferred_language, created_at, updated_at 
+      FROM users 
+      ORDER BY created_at DESC
+    `;
+    const result = await queryWithRetry(query, []);
+    return result.rows;
+  }
+
   async getUserStats(): Promise<{ total_users: number; total_admins: number }> {
     const query = `
       SELECT 
