@@ -77,11 +77,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start server
-const server = app.listen(config.port, () => {
-  console.log(`🚀 Server running on port ${config.port}`);
+// Start server - Railway compatibility
+const PORT = parseInt(process.env.PORT || config.port.toString(), 10);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${config.nodeEnv}`);
   console.log(`🌐 CORS origin: ${config.cors.origin}`);
+  console.log(`🔍 Railway PORT env: ${process.env.PORT}`);
+  console.log(`🔍 Config port: ${config.port}`);
 });
 
 // Graceful shutdown
