@@ -1,0 +1,25 @@
+{
+  "name": "task-manager-fullstack",
+  "version": "1.0.0",
+  "description": "Multi-language task management application with admin panel",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev",
+    "dev:frontend": "cd client && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "npm run build",
+    "build:frontend": "cd client && npm run build",
+    "start": "npm run start:backend",
+    "start:backend": "npm start",
+    "install:all": "npm install && cd client && npm install",
+    "migrate": "npm run migrate",
+    "test": "npm test && cd client && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    ".",
+    "client"
+  ]
+}
