@@ -15,7 +15,7 @@ export const UserManager: React.FC = () => {
     queryFn: adminAPI.getUsers,
   });
 
-  const users = usersResponse?.data || [];
+  const users = (usersResponse?.data as any)?.data || [];
 
   // Filter users
   const filteredUsers = users.filter((user: UserType) => {

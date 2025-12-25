@@ -7,17 +7,20 @@ exports.translationLimiter = exports.adminLimiter = exports.registerLimiter = ex
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 exports.generalLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: process.env.NODE_ENV === 'development' ? 1000 : 100,
     message: {
         success: false,
         error: 'Too many requests from this IP, please try again later.'
     },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        return req.path === '/api/health';
+    },
 });
 exports.authLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: process.env.NODE_ENV === 'development' ? 50 : 5,
     skipSuccessfulRequests: true,
     keyGenerator: (req) => {
         return req.body.email || req.ip || 'unknown';

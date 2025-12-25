@@ -1,4 +1,4 @@
-import pool from '../config/database';
+import pool, { queryWithRetry } from '../config/database';
 import { User, RegisterRequest } from '../types';
 import { hashPassword } from '../utils/auth';
 
@@ -19,7 +19,7 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<User | null> {
     const query = 'SELECT * FROM users WHERE email = $1';
-    const result = await pool.query(query, [email]);
+    const result = await queryWithRetry(query, [email]);
     return result.rows[0] || null;
   }
 
@@ -28,7 +28,7 @@ export class UserService {
       SELECT id, email, role, preferred_language, created_at, updated_at 
       FROM users WHERE id = $1
     `;
-    const result = await pool.query(query, [id]);
+    const result = await queryWithRetry(query, [id]);
     return result.rows[0] || null;
   }
 

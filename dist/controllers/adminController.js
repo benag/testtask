@@ -75,6 +75,13 @@ class AdminController {
         try {
             const { id } = req.params;
             const { name, is_active } = req.body;
+            if (!id) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Language ID is required'
+                });
+                return;
+            }
             const language = await translationService.updateLanguage(id, name, is_active);
             if (!language) {
                 res.status(404).json({
@@ -142,6 +149,13 @@ class AdminController {
         try {
             const { id } = req.params;
             const keyData = req.body;
+            if (!id) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Translation key ID is required'
+                });
+                return;
+            }
             const key = await translationService.updateTranslationKey(id, keyData);
             if (!key) {
                 res.status(404).json({
@@ -167,6 +181,13 @@ class AdminController {
     async deleteTranslationKey(req, res) {
         try {
             const { id } = req.params;
+            if (!id) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Translation key ID is required'
+                });
+                return;
+            }
             const deleted = await translationService.deleteTranslationKey(id);
             if (!deleted) {
                 res.status(404).json({
@@ -208,6 +229,13 @@ class AdminController {
         try {
             const { keyId, languageCode } = req.params;
             const translationData = req.body;
+            if (!keyId || !languageCode) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Key ID and language code are required'
+                });
+                return;
+            }
             const translation = await translationService.updateTranslation(keyId, languageCode, translationData);
             res.json({
                 success: true,
@@ -226,6 +254,13 @@ class AdminController {
     async deleteTranslation(req, res) {
         try {
             const { keyId, languageCode } = req.params;
+            if (!keyId || !languageCode) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Key ID and language code are required'
+                });
+                return;
+            }
             const deleted = await translationService.deleteTranslation(keyId, languageCode);
             if (!deleted) {
                 res.status(404).json({

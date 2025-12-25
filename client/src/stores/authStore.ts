@@ -31,11 +31,11 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await authAPI.login(credentials);
-          if (response.success && response.token && response.user) {
-            localStorage.setItem('token', response.token);
+          if (response.success && response.data?.token && response.data?.user) {
+            localStorage.setItem('token', response.data.token);
             set({
-              user: response.user,
-              token: response.token,
+              user: response.data.user,
+              token: response.data.token,
               isAuthenticated: true,
               isLoading: false,
             });
@@ -55,11 +55,11 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await authAPI.register(userData);
-          if (response.success && response.token && response.user) {
-            localStorage.setItem('token', response.token);
+          if (response.success && response.data?.token && response.data?.user) {
+            localStorage.setItem('token', response.data.token);
             set({
-              user: response.user,
-              token: response.token,
+              user: response.data.user,
+              token: response.data.token,
               isAuthenticated: true,
               isLoading: false,
             });

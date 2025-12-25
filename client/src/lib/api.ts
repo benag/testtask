@@ -99,8 +99,8 @@ export const tasksAPI = {
 // Translations API
 export const translationsAPI = {
   getTranslations: async (languageCode?: string): Promise<ApiResponse<Translation[]>> => {
-    const params = languageCode ? { language: languageCode } : {};
-    const response = await api.get('/translations', { params });
+    const endpoint = languageCode ? `/translations/${languageCode}` : '/translations/en';
+    const response = await api.get(endpoint);
     return response.data;
   },
 

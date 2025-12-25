@@ -94,7 +94,7 @@ export const LoginForm: React.FC = () => {
 
             <div className="mt-4 p-3 bg-gray-50 rounded-md">
               <p className="text-xs text-gray-600 mb-2">Test credentials:</p>
-              <p className="text-xs text-gray-600">User: user@test.com / test123</p>
+              <p className="text-xs text-gray-600">User: user@test.com / user123</p>
               <p className="text-xs text-gray-600">Admin: admin@test.com / admin123</p>
             </div>
           </CardContent>

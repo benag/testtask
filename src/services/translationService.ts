@@ -219,7 +219,7 @@ export class TranslationService {
       if (!exportData[row.language_code]) {
         exportData[row.language_code] = {};
       }
-      exportData[row.language_code][row.key_name] = row.value || '';
+      exportData[row.language_code]![row.key_name] = row.value || '';
     });
 
     return exportData;

@@ -16,7 +16,11 @@ class AuthController {
                 });
                 return;
             }
-            const user = await userService.createUser({ email, password, preferred_language });
+            const user = await userService.createUser({
+                email,
+                password,
+                preferred_language: preferred_language || 'en'
+            });
             const token = (0, auth_1.generateToken)(user);
             res.status(201).json({
                 success: true,

@@ -68,6 +68,14 @@ export class TaskController {
       const userId = req.user!.id;
       const taskId = req.params.id;
 
+      if (!taskId) {
+        res.status(400).json({
+          success: false,
+          error: 'Task ID is required'
+        });
+        return;
+      }
+
       const task = await taskService.getTaskById(taskId, userId);
       
       if (!task) {
@@ -97,6 +105,14 @@ export class TaskController {
       const taskId = req.params.id;
       const taskData: UpdateTaskRequest = req.body;
 
+      if (!taskId) {
+        res.status(400).json({
+          success: false,
+          error: 'Task ID is required'
+        });
+        return;
+      }
+
       const task = await taskService.updateTask(taskId, userId, taskData);
       
       if (!task) {
@@ -125,6 +141,14 @@ export class TaskController {
     try {
       const userId = req.user!.id;
       const taskId = req.params.id;
+
+      if (!taskId) {
+        res.status(400).json({
+          success: false,
+          error: 'Task ID is required'
+        });
+        return;
+      }
 
       const deleted = await taskService.deleteTask(taskId, userId);
       

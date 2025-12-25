@@ -105,7 +105,7 @@ export const TranslationForm: React.FC<TranslationFormProps> = ({
   };
 
   const isLoading = createTranslationMutation.isPending || updateTranslationMutation.isPending;
-  const languages = languagesResponse?.data || ['en', 'he', 'ru'];
+  const languages = (languagesResponse?.data as string[]) || ['en', 'he', 'ru'];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

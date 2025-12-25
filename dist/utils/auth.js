@@ -17,12 +17,15 @@ const comparePassword = async (password, hash) => {
 };
 exports.comparePassword = comparePassword;
 const generateToken = (user) => {
-    return jsonwebtoken_1.default.sign({
+    const payload = {
         id: user.id,
         email: user.email,
         role: user.role,
         preferred_language: user.preferred_language,
-    }, config_1.config.jwt.secret, { expiresIn: config_1.config.jwt.expiresIn });
+    };
+    const secret = config_1.config.jwt.secret;
+    const options = { expiresIn: config_1.config.jwt.expiresIn };
+    return jsonwebtoken_1.default.sign(payload, secret, options);
 };
 exports.generateToken = generateToken;
 //# sourceMappingURL=auth.js.map

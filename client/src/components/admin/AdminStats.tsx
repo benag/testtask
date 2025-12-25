@@ -21,8 +21,8 @@ export const AdminStats: React.FC = () => {
     queryFn: tasksAPI.getTasks,
   });
 
-  const users = usersResponse?.data || [];
-  const tasks = tasksResponse?.data || [];
+  const users = (usersResponse?.data as any)?.data || [];
+  const tasks = (tasksResponse?.data as any)?.data || [];
 
   const stats = {
     totalUsers: users.length,

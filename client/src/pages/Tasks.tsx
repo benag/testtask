@@ -31,7 +31,7 @@ export const Tasks: React.FC = () => {
     },
   });
 
-  const tasks = tasksResponse?.data || [];
+  const tasks = (tasksResponse?.data as any)?.data || [];
 
   // Filter tasks
   const filteredTasks = tasks.filter((task: Task) => {

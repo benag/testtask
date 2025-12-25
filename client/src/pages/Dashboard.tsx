@@ -1,22 +1,34 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Clock, AlertCircle, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { tasksAPI } from '../lib/api';
 import { useTranslation } from '../hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { TaskCard } from '../components/tasks/TaskCard';
+import { TaskForm } from '../components/tasks/TaskForm';
 import type { Task } from '../types';
 
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   
   const { data: tasksResponse, isLoading } = useQuery({
     queryKey: ['tasks'],
     queryFn: tasksAPI.getTasks,
   });
 
-  const tasks = tasksResponse?.data || [];
+  const deleteTaskMutation = useMutation({
+    mutationFn: tasksAPI.deleteTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+
+  const tasks = (tasksResponse?.data as any)?.data || [];
 
   const stats = {
     total: tasks.length,
@@ -28,6 +40,22 @@ export const Dashboard: React.FC = () => {
   const recentTasks = tasks
     .sort((a: Task, b: Task) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5);
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setShowTaskForm(true);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      deleteTaskMutation.mutate(taskId);
+    }
+  };
+
+  const handleCloseForm = () => {
+    setShowTaskForm(false);
+    setEditingTask(null);
+  };
 
   if (isLoading) {
     return (
@@ -41,12 +69,13 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">{t('nav.dashboard')}</h1>
-        <Link to="/tasks">
-          <Button className="flex items-center space-x-2">
-            <Plus className="w-4 h-4" />
-            <span>New Task</span>
-          </Button>
-        </Link>
+        <Button 
+          onClick={() => setShowTaskForm(true)}
+          className="flex items-center space-x-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span>New Task</span>
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -122,50 +151,28 @@ export const Dashboard: React.FC = () => {
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentTasks.map((task: Task) => (
-                <div
+                <TaskCard
                   key={task.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        task.status === 'done'
-                          ? 'bg-green-500'
-                          : task.status === 'in_progress'
-                          ? 'bg-orange-500'
-                          : 'bg-gray-400'
-                      }`}
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{task.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        {task.description && task.description.length > 50
-                          ? `${task.description.substring(0, 50)}...`
-                          : task.description}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        task.priority === 'high'
-                          ? 'bg-red-100 text-red-800'
-                          : task.priority === 'medium'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {t(`task.priority.${task.priority}`)}
-                    </span>
-                  </div>
-                </div>
+                  task={task}
+                  onEdit={() => handleEditTask(task)}
+                  onDelete={() => handleDeleteTask(task.id)}
+                />
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Task Form Modal */}
+      {showTaskForm && (
+        <TaskForm
+          task={editingTask}
+          onClose={handleCloseForm}
+          onSuccess={handleCloseForm}
+        />
+      )}
     </div>
   );
 };

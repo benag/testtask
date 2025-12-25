@@ -1,22 +1,27 @@
 import rateLimit from 'express-rate-limit';
 import { Request } from 'express';
+import { AuthRequest } from './auth';
 
 // General API rate limiting
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // More lenient in development
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/api/health';
+  },
 });
 
 // Strict rate limiting for authentication endpoints
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 login attempts per window
+  max: process.env.NODE_ENV === 'development' ? 50 : 5, // More lenient in development
   skipSuccessfulRequests: true, // Don't count successful requests
   keyGenerator: (req: Request) => {
     // Use email if provided, otherwise fall back to IP
@@ -47,7 +52,7 @@ export const registerLimiter = rateLimit({
 export const adminLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 50, // 50 admin operations per window
-  keyGenerator: (req: Request) => req.user?.id || req.ip || 'unknown',
+  keyGenerator: (req: AuthRequest) => req.user?.id || req.ip || 'unknown',
   message: {
     success: false,
     error: 'Too many admin operations. Please slow down.'
@@ -60,7 +65,7 @@ export const adminLimiter = rateLimit({
 export const translationLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 10, // 10 translation updates per minute
-  keyGenerator: (req: Request) => req.user?.id || req.ip || 'unknown',
+  keyGenerator: (req: AuthRequest) => req.user?.id || req.ip || 'unknown',
   message: {
     success: false,
     error: 'Too many translation updates. Please wait a moment.'

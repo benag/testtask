@@ -23,6 +23,13 @@ class TranslationController {
     async getTranslations(req, res) {
         try {
             const { language } = req.params;
+            if (!language) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Language parameter is required'
+                });
+                return;
+            }
             const translations = await translationService.getTranslationsByLanguage(language);
             res.json({
                 success: true,
