@@ -14,9 +14,13 @@ import type {
   TranslationRequest
 } from '../types';
 
-// Hardcoded for test deployment - Railway backend URL
-const API_BASE_URL = 'https://testtask-production-a887.up.railway.app/api';
-// const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'; // For local development
+// Smart API URL detection - local vs production
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = isLocalhost 
+  ? 'http://localhost:3000/api'  // Local development
+  : 'https://testtask-production-a887.up.railway.app/api'; // Railway production
+
+console.log('🔗 API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,

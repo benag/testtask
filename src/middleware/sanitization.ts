@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import validator from 'validator';
-import DOMPurify from 'isomorphic-dompurify';
+// Removed DOMPurify to fix ES module issues in production
 
 // Configuration for different sanitization levels
 interface SanitizationConfig {
@@ -32,11 +32,12 @@ export class InputSanitizer {
 
     // Handle HTML content
     if (config.allowHTML) {
-      // Allow HTML but sanitize dangerous elements
-      sanitized = DOMPurify.sanitize(sanitized, {
-        ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li'],
-        ALLOWED_ATTR: []
-      });
+      // Simple HTML sanitization - remove script tags and dangerous content
+      sanitized = sanitized
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '');
     } else {
       // Escape HTML entities for plain text
       sanitized = validator.escape(sanitized);

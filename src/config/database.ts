@@ -1,7 +1,9 @@
 import { Pool } from 'pg';
-import dotenv from 'dotenv';
 
-dotenv.config();
+// Only load dotenv in development
+if (process.env.NODE_ENV !== 'production') {
+  import('dotenv').then(dotenv => dotenv.config());
+}
 
 // Debug: Log database configuration
 console.log('🔍 Database Config Debug:');
