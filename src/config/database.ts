@@ -23,7 +23,9 @@ console.log('Using DATABASE_URL:', DATABASE_URL.substring(0, 50) + '...');
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: false, // Temporarily disabled for Railway deployment debugging
+  ssl: {
+    rejectUnauthorized: false // Accept self-signed certificates from RDS
+  },
   max: 10, // Reduce max connections
   idleTimeoutMillis: 60000, // 60 seconds
   connectionTimeoutMillis: 10000, // 10 seconds
