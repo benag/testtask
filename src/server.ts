@@ -1,3 +1,5 @@
+console.log('🔄 Starting server initialization...');
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,6 +8,8 @@ import { config } from './config';
 import routes from './routes';
 import { generalLimiter } from './middleware/rateLimiting';
 import { xssProtection } from './middleware/sanitization';
+
+console.log('✅ All imports loaded successfully');
 
 const app = express();
 
@@ -89,14 +93,35 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Start server - Railway compatibility
+console.log('🚀 Starting server...');
+console.log('🔍 Environment variables:');
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- PORT:', process.env.PORT);
+console.log('- DATABASE_URL exists:', !!process.env.DATABASE_URL);
+
 const PORT = parseInt(process.env.PORT || config.port.toString(), 10);
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${config.nodeEnv}`);
-  console.log(`🌐 CORS origin: ${config.cors.origin}`);
-  console.log(`🔍 Railway PORT env: ${process.env.PORT}`);
-  console.log(`🔍 Config port: ${config.port}`);
-});
+console.log(`🔌 Attempting to bind to port ${PORT} on 0.0.0.0`);
+
+let server: any;
+
+try {
+  server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Server successfully running on port ${PORT}`);
+    console.log(`📊 Environment: ${config.nodeEnv}`);
+    console.log(`🌐 CORS origin: ${config.cors.origin}`);
+    console.log(`🔍 Railway PORT env: ${process.env.PORT}`);
+    console.log(`🔍 Config port: ${config.port}`);
+    console.log('🎆 Server startup complete!');
+  });
+  
+  server.on('error', (error) => {
+    console.error('❌ Server error:', error);
+    process.exit(1);
+  });
+} catch (error) {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
+}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
