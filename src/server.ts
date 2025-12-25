@@ -2,7 +2,7 @@ console.log('🔄 Starting server initialization...');
 
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
+// import helmet from 'helmet'; // Disabled for Railway deployment
 import compression from 'compression';
 import path from 'path';
 import { config } from './config';
@@ -17,17 +17,18 @@ const app = express();
 // Trust proxy for Railway deployment
 app.set('trust proxy', true);
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
+// Security middleware - Helmet disabled for Railway deployment
+// app.use(helmet({
+//   contentSecurityPolicy: {
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       styleSrc: ["'self'", "'unsafe-inline'"],
+//       scriptSrc: ["'self'"],
+//       imgSrc: ["'self'", "data:", "https:"],
+//     },
+//   },
+// }));
+console.log('⚠️  Helmet disabled for deployment debugging');
 
 // XSS Protection
 app.use(xssProtection);
