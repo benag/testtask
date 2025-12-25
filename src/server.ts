@@ -14,6 +14,9 @@ console.log('✅ All imports loaded successfully');
 
 const app = express();
 
+// Trust proxy for Railway deployment
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: {

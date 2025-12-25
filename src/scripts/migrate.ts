@@ -92,20 +92,17 @@ async function runMigrations(): Promise<void> {
 
 // Run migrations if this file is executed directly
 if (require.main === module) {
-  console.log('⏭️  Skipping migrations - database already set up');
-  console.log('Migration process completed (skipped)');
-  process.exit(0);
+  console.log('🚀 Running migrations to set up database...');
   
-  // Commented out for Railway deployment since RDS is already set up
-  // runMigrations()
-  //   .then(() => {
-  //     console.log('Migration process completed');
-  //     process.exit(0);
-  //   })
-  //   .catch((error) => {
-  //     console.error('Migration process failed:', error);
-  //     process.exit(1);
-  //   });
+  runMigrations()
+    .then(() => {
+      console.log('Migration process completed');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Migration process failed:', error);
+      process.exit(1);
+    });
 }
 
 export { runMigrations };
