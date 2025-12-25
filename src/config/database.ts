@@ -12,7 +12,7 @@ console.log('DATABASE_URL preview:', process.env.DATABASE_URL?.substring(0, 50) 
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
 // Temporary hardcoded DATABASE_URL for Railway deployment testing
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:jhbsd73b@database-1.cn8k6a26wgvi.us-east-1.rds.amazonaws.com:5432/task_manager?sslmode=require&sslcert=&sslkey=&sslrootcert=';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:jhbsd73b@database-1.cn8k6a26wgvi.us-east-1.rds.amazonaws.com:5432/task_manager';
 
 // Ensure we have a DATABASE_URL
 if (!DATABASE_URL) {
@@ -23,7 +23,7 @@ console.log('Using DATABASE_URL:', DATABASE_URL.substring(0, 50) + '...');
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: DATABASE_URL.includes('amazonaws.com') ? true : false,
+  ssl: false, // Temporarily disabled for Railway deployment debugging
   max: 10, // Reduce max connections
   idleTimeoutMillis: 60000, // 60 seconds
   connectionTimeoutMillis: 10000, // 10 seconds
