@@ -11,6 +11,7 @@
     "build:backend": "tsc",
     "build:frontend": "cd client && npm run build",
     "start": "node dist/server.js",
+    "start:fullstack": "npm run build && npm start",
     "migrate": "echo 'Migrations skipped - RDS already configured'",
     "migrate:disabled": "echo 'Migrations skipped - RDS already configured'",
     "test": "jest",

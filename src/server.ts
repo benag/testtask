@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import path from 'path';
 import { config } from './config';
 import routes from './routes';
 import { generalLimiter } from './middleware/rateLimiting';
@@ -53,34 +54,59 @@ app.use((req, res, next) => {
 // API routes
 app.use('/api', routes);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  console.log('📥 Root endpoint hit');
-  res.json({
-    success: true,
-    message: 'Task Manager API',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Simple health check (bypass middleware)
+// Health endpoints (before catch-all)
 app.get('/health', (req, res) => {
   console.log('📥 Direct health check hit');
-  res.json({
+  res.status(200).json({
     success: true,
     message: 'API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    port: process.env.PORT || config.port
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Endpoint not found'
+app.get('/ping', (req, res) => {
+  console.log('🏓 Ping endpoint hit');
+  res.status(200).send('pong');
+});
+
+// Serve static files from React build
+const clientBuildPath = path.join(__dirname, '../client/dist');
+console.log('📁 Serving static files from:', clientBuildPath);
+
+// Check if client build exists
+try {
+  const fs = require('fs');
+  const indexExists = fs.existsSync(path.join(clientBuildPath, 'index.html'));
+  console.log('🔍 Client index.html exists:', indexExists);
+  if (indexExists) {
+    const files = fs.readdirSync(clientBuildPath);
+    console.log('📁 Client build files:', files);
+  }
+} catch (error) {
+  console.error('❌ Error checking client build:', error);
+}
+
+app.use(express.static(clientBuildPath));
+
+// Catch-all handler: send back React's index.html file for SPA routing
+app.get('*', (req, res) => {
+  // Skip API routes and health endpoints
+  if (req.path.startsWith('/api') || req.path === '/health' || req.path === '/ping') {
+    return res.status(404).json({ success: false, error: 'Endpoint not found' });
+  }
+  
+  console.log('📥 Serving React app for:', req.path);
+  const indexPath = path.join(clientBuildPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error serving React app:', err);
+      res.status(500).json({ success: false, error: 'Failed to serve app' });
+    }
   });
 });
+
+// Remove duplicate endpoints - already defined above
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -105,7 +131,7 @@ console.log(`🔌 Attempting to bind to port ${PORT} on 0.0.0.0`);
 let server: any;
 
 try {
-  server = app.listen(PORT, '0.0.0.0', () => {
+  server = app.listen(PORT, () => {
     console.log(`✅ Server successfully running on port ${PORT}`);
     console.log(`📊 Environment: ${config.nodeEnv}`);
     console.log(`🌐 CORS origin: ${config.cors.origin}`);
