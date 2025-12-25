@@ -7,7 +7,7 @@ import compression from 'compression';
 import path from 'path';
 import { config } from './config';
 import routes from './routes';
-import { generalLimiter } from './middleware/rateLimiting';
+// import { generalLimiter } from './middleware/rateLimiting'; // Disabled for debugging
 import { xssProtection } from './middleware/sanitization';
 
 console.log('✅ All imports loaded successfully');
@@ -33,8 +33,9 @@ console.log('⚠️  Helmet disabled for deployment debugging');
 // XSS Protection
 app.use(xssProtection);
 
-// Rate limiting
-app.use('/api/', generalLimiter);
+// Rate limiting - Disabled for Railway deployment debugging
+// app.use('/api/', generalLimiter);
+console.log('⚠️  Rate limiting disabled for deployment debugging');
 
 // CORS configuration
 app.use(cors({

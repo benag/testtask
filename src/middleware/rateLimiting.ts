@@ -12,6 +12,10 @@ export const generalLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Custom key generator for Railway proxy
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress || 'unknown';
+  },
   skip: (req) => {
     // Skip rate limiting for health checks
     return req.path === '/api/health';
