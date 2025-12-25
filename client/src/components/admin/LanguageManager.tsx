@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Globe } from 'lucide-react';
+import { Plus, Edit, Globe } from 'lucide-react';
 import { adminAPI, translationsAPI } from '../../lib/api';
-import { useTranslation } from '../../hooks/useTranslation';
+// import { useTranslation } from '../../hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -15,7 +15,7 @@ interface LanguageFormData {
 }
 
 export const LanguageManager: React.FC = () => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState<Language | null>(null);

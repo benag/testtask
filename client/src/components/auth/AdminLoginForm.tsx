@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { useTranslation } from '../../hooks/useTranslation';
+// import { useTranslation } from '../../hooks/useTranslation';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
@@ -19,7 +19,7 @@ type AdminLoginFormData = z.infer<typeof adminLoginSchema>;
 
 export const AdminLoginForm: React.FC = () => {
   const { login, isLoading, error } = useAuthStore();
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const navigate = useNavigate();
 
   const {

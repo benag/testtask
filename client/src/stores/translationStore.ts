@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Language, Translation } from '../types';
 import { translationsAPI } from '../lib/api';
+import { staticTranslations } from '../locales';
 
 interface TranslationState {
   currentLanguage: string;
@@ -18,84 +19,7 @@ interface TranslationState {
   clearError: () => void;
 }
 
-// Static UI translations (can be in JSON files)
-const staticTranslations: Record<string, Record<string, string>> = {
-  en: {
-    'nav.dashboard': 'Dashboard',
-    'nav.tasks': 'Tasks',
-    'nav.admin': 'Admin',
-    'nav.logout': 'Logout',
-    'nav.login': 'Login',
-    'nav.register': 'Register',
-    'button.save': 'Save',
-    'button.cancel': 'Cancel',
-    'button.delete': 'Delete',
-    'button.edit': 'Edit',
-    'button.create': 'Create',
-    'button.submit': 'Submit',
-    'form.title': 'Title',
-    'form.description': 'Description',
-    'form.email': 'Email',
-    'form.password': 'Password',
-    'form.confirmPassword': 'Confirm Password',
-    'form.dueDate': 'Due Date',
-    'page.login.title': 'Login to Task Manager',
-    'page.register.title': 'Create Account',
-    'page.tasks.title': 'My Tasks',
-    'page.admin.title': 'Admin Panel',
-    'language.switcher': 'Language',
-  },
-  he: {
-    'nav.dashboard': 'לוח בקרה',
-    'nav.tasks': 'משימות',
-    'nav.admin': 'ניהול',
-    'nav.logout': 'התנתק',
-    'nav.login': 'התחבר',
-    'nav.register': 'הרשם',
-    'button.save': 'שמור',
-    'button.cancel': 'בטל',
-    'button.delete': 'מחק',
-    'button.edit': 'ערוך',
-    'button.create': 'צור',
-    'button.submit': 'שלח',
-    'form.title': 'כותרת',
-    'form.description': 'תיאור',
-    'form.email': 'אימייל',
-    'form.password': 'סיסמה',
-    'form.confirmPassword': 'אשר סיסמה',
-    'form.dueDate': 'תאריך יעד',
-    'page.login.title': 'התחבר למנהל המשימות',
-    'page.register.title': 'צור חשבון',
-    'page.tasks.title': 'המשימות שלי',
-    'page.admin.title': 'פאנל ניהול',
-    'language.switcher': 'שפה',
-  },
-  ru: {
-    'nav.dashboard': 'Панель управления',
-    'nav.tasks': 'Задачи',
-    'nav.admin': 'Админ',
-    'nav.logout': 'Выйти',
-    'nav.login': 'Войти',
-    'nav.register': 'Регистрация',
-    'button.save': 'Сохранить',
-    'button.cancel': 'Отмена',
-    'button.delete': 'Удалить',
-    'button.edit': 'Редактировать',
-    'button.create': 'Создать',
-    'button.submit': 'Отправить',
-    'form.title': 'Заголовок',
-    'form.description': 'Описание',
-    'form.email': 'Email',
-    'form.password': 'Пароль',
-    'form.confirmPassword': 'Подтвердить пароль',
-    'form.dueDate': 'Срок выполнения',
-    'page.login.title': 'Войти в Task Manager',
-    'page.register.title': 'Создать аккаунт',
-    'page.tasks.title': 'Мои задачи',
-    'page.admin.title': 'Панель администратора',
-    'language.switcher': 'Язык',
-  },
-};
+// Static UI translations are now loaded from JSON files
 
 export const useTranslationStore = create<TranslationState>()(
   persist(
