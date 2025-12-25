@@ -190,7 +190,7 @@ export const LanguageManager: React.FC = () => {
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">
                       <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary-600">
+                        <span className="text-sm font-medium text-blue-600" style={{ color: '#2563eb' }}>
                           {language.code.toUpperCase()}
                         </span>
                       </div>

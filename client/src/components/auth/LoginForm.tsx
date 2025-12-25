@@ -85,7 +85,8 @@ export const LoginForm: React.FC = () => {
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-medium text-primary-600 hover:text-primary-500"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                  style={{ color: '#2563eb' }}
                 >
                   {t('nav.register')}
                 </Link>

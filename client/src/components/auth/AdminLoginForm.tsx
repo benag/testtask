@@ -102,7 +102,8 @@ export const AdminLoginForm: React.FC = () => {
                 Need regular access?{' '}
                 <button
                   onClick={() => navigate('/login')}
-                  className="font-medium text-primary-600 hover:text-primary-500"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                  style={{ color: '#2563eb' }}
                 >
                   User Login
                 </button>

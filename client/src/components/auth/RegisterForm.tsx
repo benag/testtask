@@ -101,7 +101,8 @@ export const RegisterForm: React.FC = () => {
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="font-medium text-primary-600 hover:text-primary-500"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                  style={{ color: '#2563eb' }}
                 >
                   {t('nav.login')}
                 </Link>
