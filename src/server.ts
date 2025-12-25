@@ -93,7 +93,8 @@ app.use(express.static(clientBuildPath));
 app.get('*', (req, res) => {
   // Skip API routes and health endpoints
   if (req.path.startsWith('/api') || req.path === '/health' || req.path === '/ping') {
-    return res.status(404).json({ success: false, error: 'Endpoint not found' });
+    res.status(404).json({ success: false, error: 'Endpoint not found' });
+    return;
   }
   
   console.log('📥 Serving React app for:', req.path);
