@@ -3,8 +3,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Debug: Log database configuration
+console.log('🔍 Database Config Debug:');
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('DATABASE_URL preview:', process.env.DATABASE_URL?.substring(0, 50) + '...');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
+// Temporary hardcoded DATABASE_URL for Railway deployment testing
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:jhbsd73b@database-1.cn8k6a26wgvi.us-east-1.rds.amazonaws.com:5432/task_manager';
+
+// Ensure we have a DATABASE_URL
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL is required');
+}
+
+console.log('Using DATABASE_URL:', DATABASE_URL.substring(0, 50) + '...');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DATABASE_URL,
   ssl: process.env.DATABASE_URL?.includes('amazonaws.com') ? { rejectUnauthorized: false } : false,
   max: 10, // Reduce max connections
   idleTimeoutMillis: 60000, // 60 seconds

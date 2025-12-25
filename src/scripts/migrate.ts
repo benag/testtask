@@ -5,6 +5,21 @@ import pool from '../config/database';
 async function runMigrations(): Promise<void> {
   const migrationsDir = path.join(__dirname, '../../migrations');
   
+  // Debug: Check environment variables
+  console.log('🔍 Migration Environment check:');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  console.log('DATABASE_URL preview:', process.env.DATABASE_URL?.substring(0, 50) + '...');
+  
+  // Explicit check for DATABASE_URL
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is not set!');
+  }
+  
+  if (process.env.DATABASE_URL.includes('127.0.0.1') || process.env.DATABASE_URL.includes('localhost')) {
+    throw new Error('DATABASE_URL is pointing to localhost instead of RDS!');
+  }
+  
   try {
     // Create migrations table if it doesn't exist
     await pool.query(`
