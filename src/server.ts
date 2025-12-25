@@ -114,7 +114,7 @@ try {
     console.log('🎆 Server startup complete!');
   });
   
-  server.on('error', (error) => {
+  server.on('error', (error: any) => {
     console.error('❌ Server error:', error);
     process.exit(1);
   });
