@@ -1,10 +1,9 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Users, Languages, BarChart3, Globe, Key } from 'lucide-react';
+import { Users, BarChart3, Globe, Key } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { Card, CardContent } from '../components/ui/Card';
 import { AdminStats } from '../components/admin/AdminStats';
-import { TranslationManager } from '../components/admin/TranslationManager';
 import { UserManager } from '../components/admin/UserManager';
 import { LanguageManager } from '../components/admin/LanguageManager';
 import { TranslationKeyManager } from '../components/admin/TranslationKeyManager';
@@ -25,12 +24,6 @@ export const AdminPanel: React.FC = () => {
       href: '/admin/keys',
       icon: Key,
       current: location.pathname === '/admin/keys',
-    },
-    {
-      name: 'Translations',
-      href: '/admin/translations',
-      icon: Languages,
-      current: location.pathname === '/admin/translations',
     },
     {
       name: 'Languages',
@@ -82,7 +75,6 @@ export const AdminPanel: React.FC = () => {
       <Routes>
         <Route path="/" element={<AdminStats />} />
         <Route path="/keys" element={<TranslationKeyManager />} />
-        <Route path="/translations" element={<TranslationManager />} />
         <Route path="/languages" element={<LanguageManager />} />
         <Route path="/users" element={<UserManager />} />
       </Routes>

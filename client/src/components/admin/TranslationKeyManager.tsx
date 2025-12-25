@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Key, Languages } from 'lucide-react';
+import { Plus, Edit, Trash2, Key, Languages, Download, Upload } from 'lucide-react';
 import { adminAPI, translationsAPI } from '../../lib/api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
@@ -21,6 +21,7 @@ export const TranslationKeyManager: React.FC = () => {
   const [editingKey, setEditingKey] = useState<TranslationKey | null>(null);
   const [showTranslations, setShowTranslations] = useState<string | null>(null);
   const [translationValues, setTranslationValues] = useState<Record<string, string>>({});
+  const [savingTranslations, setSavingTranslations] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState<KeyFormData>({
     key_name: '',
     description: '',
@@ -67,17 +68,46 @@ export const TranslationKeyManager: React.FC = () => {
   });
 
   const updateTranslationMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
-      adminAPI.updateTranslation(id, data),
-    onSuccess: () => {
+    mutationFn: ({ id, data, translationKey }: { id: string; data: any; translationKey: string }) => {
+      setSavingTranslations(prev => new Set(prev).add(translationKey));
+      return adminAPI.updateTranslation(id, data);
+    },
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-translations'] });
+      setSavingTranslations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(variables.translationKey);
+        return newSet;
+      });
+    },
+    onError: (_, variables) => {
+      setSavingTranslations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(variables.translationKey);
+        return newSet;
+      });
     },
   });
 
   const createTranslationMutation = useMutation({
-    mutationFn: (data: any) => adminAPI.createTranslation(data),
-    onSuccess: () => {
+    mutationFn: ({ data, translationKey }: { data: any; translationKey: string }) => {
+      setSavingTranslations(prev => new Set(prev).add(translationKey));
+      return adminAPI.createTranslation(data);
+    },
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-translations'] });
+      setSavingTranslations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(variables.translationKey);
+        return newSet;
+      });
+    },
+    onError: (_, variables) => {
+      setSavingTranslations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(variables.translationKey);
+        return newSet;
+      });
     },
   });
 
@@ -156,14 +186,18 @@ export const TranslationKeyManager: React.FC = () => {
       // Update existing translation
       updateTranslationMutation.mutate({
         id: existingTranslation.id,
-        data: { value }
+        data: { value },
+        translationKey
       });
     } else {
       // Create new translation
       createTranslationMutation.mutate({
-        key_id: keyId,
-        language_code: languageCode,
-        value
+        data: {
+          key_id: keyId,
+          language_code: languageCode,
+          value
+        },
+        translationKey
       });
     }
 
@@ -353,7 +387,7 @@ export const TranslationKeyManager: React.FC = () => {
                                     size="sm"
                                     onClick={() => handleSaveTranslation(key.id, language.code)}
                                     disabled={!translationValues[translationKey] || translationValues[translationKey] === translation?.value}
-                                    isLoading={updateTranslationMutation.isPending || createTranslationMutation.isPending}
+                                    isLoading={savingTranslations.has(translationKey)}
                                   >
                                     Save
                                   </Button>
