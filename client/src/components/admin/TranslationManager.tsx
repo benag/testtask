@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Download, Upload, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Download, Upload, Search, Wand2 } from 'lucide-react';
 import { adminAPI } from '../../lib/api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { TranslationForm } from './TranslationForm';
+import { AITranslationGenerator } from './AITranslationGenerator';
 import type { Translation } from '../../types';
 
 export const TranslationManager: React.FC = () => {
@@ -17,6 +18,7 @@ export const TranslationManager: React.FC = () => {
   const [editingTranslation, setEditingTranslation] = useState<Translation | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
+  const [showAIGenerator, setShowAIGenerator] = useState<string | null>(null);
 
   const { data: translationsResponse, isLoading } = useQuery({
     queryKey: ['admin-translations'],
@@ -133,6 +135,16 @@ export const TranslationManager: React.FC = () => {
 
   const handleExport = () => {
     exportTranslationsMutation.mutate();
+  };
+
+  const handleAITranslation = (translationId: string) => {
+    setShowAIGenerator(translationId);
+  };
+
+  const handleTranslationGenerated = () => {
+    // Refresh the translations list
+    queryClient.invalidateQueries({ queryKey: ['admin-translations'] });
+    setShowAIGenerator(null);
   };
 
   if (isLoading) {
@@ -276,6 +288,15 @@ export const TranslationManager: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
+                            onClick={() => handleAITranslation(translation.id)}
+                            className="text-purple-600 hover:text-purple-700"
+                            title="Generate AI Translation"
+                          >
+                            <Wand2 className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => handleEditTranslation(translation)}
                           >
                             <Edit className="w-3 h-3" />
@@ -298,6 +319,50 @@ export const TranslationManager: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* AI Translation Generator */}
+      {showAIGenerator && (() => {
+        const selectedTranslation = translations.find(t => t.id === showAIGenerator);
+        if (!selectedTranslation) return null;
+        
+        // Find a source translation (preferably English)
+        const sourceTranslation = translations.find(t => 
+          t.key?.key_name === selectedTranslation.key?.key_name && 
+          t.language?.code === 'en'
+        ) || translations.find(t => 
+          t.key?.key_name === selectedTranslation.key?.key_name
+        );
+        
+        if (!sourceTranslation) return null;
+        
+        return (
+          <Card className="border-purple-200 bg-purple-50">
+            <CardHeader>
+              <CardTitle className="text-purple-900 flex items-center space-x-2">
+                <Wand2 className="w-5 h-5" />
+                <span>AI Translation Generator</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AITranslationGenerator
+                translationKey={selectedTranslation.key?.key_name || ''}
+                sourceText={sourceTranslation.value || ''}
+                sourceLanguage={sourceTranslation.language?.code || 'en'}
+                targetLanguage={selectedTranslation.language?.code || ''}
+                onTranslationGenerated={handleTranslationGenerated}
+              />
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAIGenerator(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Translation Form Modal */}
       {showForm && (

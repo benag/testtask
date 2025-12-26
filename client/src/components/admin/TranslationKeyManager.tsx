@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Key, Languages } from 'lucide-react';
+import { Plus, Edit, Trash2, Key, Languages, Wand2 } from 'lucide-react';
 import { adminAPI, translationsAPI } from '../../lib/api';
 // import { useTranslation } from '../../hooks/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
@@ -22,6 +22,7 @@ export const TranslationKeyManager: React.FC = () => {
   const [showTranslations, setShowTranslations] = useState<string | null>(null);
   const [translationValues, setTranslationValues] = useState<Record<string, string>>({});
   const [savingTranslations, setSavingTranslations] = useState<Set<string>>(new Set());
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [formData, setFormData] = useState<KeyFormData>({
     key_name: '',
     description: '',
@@ -209,6 +210,76 @@ export const TranslationKeyManager: React.FC = () => {
     });
   };
 
+  const handleAITranslation = async (keyId: string, targetLanguage: string) => {
+    console.log('🤖 AI Translation clicked:', { keyId, targetLanguage });
+    
+    const selectedKey = keys.find(k => k.id === keyId);
+    if (!selectedKey) {
+      console.error('Key not found:', keyId);
+      return;
+    }
+    
+    // If targetLanguage is 'auto', generate for Hebrew and Russian
+    if (targetLanguage === 'auto') {
+      await generateBulkTranslations(selectedKey.key_name, ['he', 'ru']);
+    } else {
+      // Generate for specific language
+      await generateBulkTranslations(selectedKey.key_name, [targetLanguage]);
+    }
+  };
+  
+  const generateBulkTranslations = async (keyName: string, targetLanguages: string[]) => {
+    try {
+      setIsGeneratingAI(true);
+      console.log('🤖 Generating bulk translations for:', keyName, targetLanguages);
+      
+      const response = await fetch('/api/ai-translations/generate-key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          key: keyName,
+          targetLanguages
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate translations');
+      }
+      
+      console.log('🎉 Generated translations:', data.data.translations);
+      
+      // Auto-populate the translation fields
+      const newTranslationValues: Record<string, string> = {};
+      Object.entries(data.data.translations).forEach(([lang, translation]) => {
+        const keyId = keys.find(k => k.key_name === keyName)?.id;
+        if (keyId) {
+          const translationKey = `${keyId}-${lang}`;
+          newTranslationValues[translationKey] = translation as string;
+        }
+      });
+      
+      setTranslationValues(prev => ({
+        ...prev,
+        ...newTranslationValues
+      }));
+      
+      // Show success message or notification
+      alert(`Generated translations for ${targetLanguages.join(', ')}!`);
+      
+    } catch (error) {
+      console.error('Bulk translation error:', error);
+      alert(`Failed to generate translations: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -345,6 +416,17 @@ export const TranslationKeyManager: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => handleAITranslation(key.id, 'auto')}
+                          className="flex items-center space-x-1 text-purple-600 hover:text-purple-700"
+                          title="Generate AI Translations"
+                        >
+                          <Wand2 className="w-3 h-3" />
+                          <span>AI Generate</span>
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleEdit(key)}
                         >
                           <Edit className="w-3 h-3" />
@@ -384,6 +466,15 @@ export const TranslationKeyManager: React.FC = () => {
                                     className="flex-1"
                                   />
                                   <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleAITranslation(key.id, language.code)}
+                                    className="text-purple-600 hover:text-purple-700"
+                                    title={`Generate AI translation for ${language.name}`}
+                                  >
+                                    <Wand2 className="w-3 h-3" />
+                                  </Button>
+                                  <Button
                                     size="sm"
                                     onClick={() => handleSaveTranslation(key.id, language.code)}
                                     disabled={!translationValues[translationKey] || translationValues[translationKey] === translation?.value}
@@ -410,6 +501,18 @@ export const TranslationKeyManager: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* AI Translation Status */}
+      {isGeneratingAI && (
+        <Card className="border-purple-200 bg-purple-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Wand2 className="w-4 h-4 text-purple-600 animate-spin" />
+              <span className="text-purple-700">Generating AI translations...</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
