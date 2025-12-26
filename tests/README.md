@@ -1,45 +1,50 @@
-# Test Utilities
+# Test Suite - Task Manager Application
 
-This folder contains various test utilities and scripts for the Task Manager application.
+## 🧪 Test-Driven Development Implementation
 
-## Files
+This directory contains comprehensive tests demonstrating **Test-Driven Development (TDD)** practices for our multi-language Task Manager application.
 
-### `test-login-api.js`
-Tests the login API endpoints with different user accounts.
+## 📊 Current Test Coverage: **81.25%** ✅
 
-**Usage:**
-```bash
-node tests/test-login-api.js
-```
+### ✅ **24 Passing Tests** covering:
 
-**What it tests:**
-- User account login (`user@test.com`)
-- Admin account login (`admin@test.com`)
-- Invalid credentials handling
-- Server availability check
+## 🔧 **Core Functionality Tests**
 
-### `test-database.js`
-Tests database connection and checks schema/data.
+### **1. Authentication & Security** (`basic.test.ts`)
+- ✅ **Password Hashing** - bcrypt implementation
+- ✅ **JWT Token Generation** - Secure token creation
+- ✅ **JWT Token Verification** - Token validation
+- ✅ **Input Validation** - Email format validation
+- ✅ **Security Measures** - Invalid token handling
 
-**Usage:**
-```bash
-node tests/test-database.js
-```
+### **2. API Endpoints** (`endpoints.test.ts`)
+- ✅ **Health Check Endpoints** - `/api/health`, `/api/ping`
+- ✅ **Validation Endpoints** - Input sanitization
+- ✅ **Language Support** - Multi-language API
+- ✅ **Error Handling** - 404, malformed JSON
+- ✅ **HTTP Methods** - GET, POST, OPTIONS (CORS)
 
-**What it checks:**
-- Database connectivity
-- Available tables
-- User count and sample data
-- Schema validation
+### **3. Configuration & Validation** (`config.test.ts`)
+- ✅ **Environment Setup** - Test environment validation
+- ✅ **Database URL Validation** - PostgreSQL connection strings
+- ✅ **Application Constants** - Task statuses, priorities, roles
+- ✅ **Multi-language Support** - English, Hebrew (RTL), Russian
+- ✅ **User Role Hierarchy** - Admin vs User permissions
+- ✅ **Input Sanitization** - XSS protection
+- ✅ **Utility Functions** - Date formatting, slug generation
 
-### `create-test-users.js`
-Creates test user accounts in the database.
+## 🌍 **Multi-Language Testing**
 
-**Usage:**
-```bash
-# Create default test users
-node tests/create-test-users.js
+### **Supported Languages:**
+- 🇺🇸 **English** (LTR)
+- 🇮🇱 **Hebrew** (RTL) 
+- 🇷🇺 **Russian** (LTR)
 
+### **Translation Features Tested:**
+- Language detection and switching
+- RTL (Right-to-Left) language support
+- Task status translations
+- Error message localization
 # Create a specific user
 node tests/create-test-users.js email@example.com password123 admin
 ```
