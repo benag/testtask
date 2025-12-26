@@ -127,9 +127,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Start server - Railway compatibility
 console.log('🚀 Starting server...');
 console.log('🔍 Environment variables:');
-console.log('- NODE_ENV:', process.env.NODE_ENV);
-console.log('- PORT:', process.env.PORT);
+console.log('- NODE_ENV:', config.nodeEnv);
+console.log('- PORT:', config.port);
 console.log('- DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('- OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+console.log('- OPENAI_API_KEY length:', process.env.OPENAI_API_KEY?.length || 0);
 
 const PORT = parseInt(process.env.PORT || config.port.toString(), 10);
 console.log(`🔌 Attempting to bind to port ${PORT} on 0.0.0.0`);

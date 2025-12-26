@@ -5,9 +5,20 @@ export class AITranslationService {
   private openai: OpenAI;
 
   constructor() {
-    if (!config.openai.apiKey) {
-      throw new Error('OpenAI API key is required for AI translation service');
+    console.log('🔍 OpenAI Config Debug:');
+    console.log('- OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+    console.log('- OPENAI_API_KEY length:', process.env.OPENAI_API_KEY?.length || 0);
+    console.log('- config.openai.apiKey exists:', !!config.openai.apiKey);
+    console.log('- config.openai.apiKey length:', config.openai.apiKey?.length || 0);
+    
+    if (!config.openai.apiKey || config.openai.apiKey.trim() === '' || config.openai.apiKey === 'your-openai-api-key-here') {
+      console.error('❌ OpenAI API key is missing or invalid');
+      console.error('- Expected: A valid OpenAI API key starting with "sk-"');
+      console.error('- Received:', config.openai.apiKey ? `"${config.openai.apiKey.substring(0, 10)}..."` : 'undefined');
+      throw new Error('OpenAI API key is required for AI translation service. Please set OPENAI_API_KEY environment variable.');
     }
+    
+    console.log('✅ OpenAI API key loaded successfully');
     
     this.openai = new OpenAI({
       apiKey: config.openai.apiKey,
