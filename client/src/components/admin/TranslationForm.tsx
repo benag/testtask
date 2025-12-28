@@ -108,7 +108,15 @@ export const TranslationForm: React.FC<TranslationFormProps> = ({
   const languages = (languagesResponse?.data as string[]) || ['en', 'he', 'ru'];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      onClick={(e) => {
+        // Close modal when clicking backdrop
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <Card className="w-full max-w-lg">
         <CardHeader>
           <div className="flex items-center justify-between">

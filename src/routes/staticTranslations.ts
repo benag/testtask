@@ -6,17 +6,20 @@ import { requireAdmin } from '../middleware/requireAdmin';
 const router = Router();
 const staticTranslationController = new StaticTranslationController();
 
-// All static translation routes require admin access
-router.use(authenticateToken);
-router.use(requireAdmin);
+// Test endpoint (no auth required for debugging)
+router.get('/test', (req, res) => {
+  res.json({ success: true, message: 'Static translations API is working!' });
+});
 
-// Get available languages
+// Get available languages (no auth required for reading)
 router.get('/languages', staticTranslationController.getAvailableLanguages.bind(staticTranslationController));
 
-// Get static translations for a language
+// Get static translations for a language (no auth required for reading)
 router.get('/:languageCode', staticTranslationController.getStaticTranslations.bind(staticTranslationController));
 
-// Update static translations for a language
+// Update static translations requires admin access
+router.use(authenticateToken);
+router.use(requireAdmin);
 router.put('/:languageCode', staticTranslationController.updateStaticTranslations.bind(staticTranslationController));
 
 export default router;

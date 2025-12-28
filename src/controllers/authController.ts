@@ -1,11 +1,29 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/userService';
-import { comparePassword, generateToken } from '../utils/auth';
+import { hashPassword, comparePassword, generateToken } from '../utils/auth';
+import fs from 'fs/promises';
+import path from 'path';
 import { LoginRequest, RegisterRequest, ApiResponse, AuthResponse } from '../types';
 
 const userService = new UserService();
 
 export class AuthController {
+  private async loadStaticTranslations(languageCode: string): Promise<Record<string, string>> {
+    try {
+      const isDev = process.env.NODE_ENV === 'development';
+      const filePath = isDev 
+        ? path.join(process.cwd(), 'client/src/locales', `${languageCode}.json`)
+        : path.join(__dirname, '../../client/src/locales', `${languageCode}.json`);
+      
+      const fileContent = await fs.readFile(filePath, 'utf-8');
+      const translations = JSON.parse(fileContent);
+      console.log(`🔄 Loaded ${Object.keys(translations).length} static translations for ${languageCode} on login`);
+      return translations;
+    } catch (error) {
+      console.warn(`⚠️ Failed to load static translations for ${languageCode}:`, error);
+      return {};
+    }
+  }
   async register(req: Request<{}, ApiResponse<AuthResponse>, RegisterRequest>, res: Response): Promise<void> {
     try {
       const { email, password, preferred_language } = req.body;
@@ -70,9 +88,19 @@ export class AuthController {
       const { password_hash, ...userWithoutPassword } = user;
       const token = generateToken(userWithoutPassword);
 
+      // Load fresh static translations for user's preferred language
+      const userLanguage = user.preferred_language || 'en';
+      const staticTranslations = await this.loadStaticTranslations(userLanguage);
+
       res.json({
         success: true,
-        data: { user: userWithoutPassword, token },
+        data: { 
+          user: userWithoutPassword, 
+          token,
+          staticTranslations: {
+            [userLanguage]: staticTranslations
+          }
+        },
         message: 'Login successful'
       });
     } catch (error) {

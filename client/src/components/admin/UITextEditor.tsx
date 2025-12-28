@@ -9,7 +9,7 @@ import { staticTranslations } from '../../locales';
 interface UITextEditorProps {}
 
 export const UITextEditor: React.FC<UITextEditorProps> = () => {
-  const { currentLanguage, setLanguage, languages, refreshTranslations } = useTranslation();
+  const { currentLanguage, setLanguage, languages, t, refreshTranslations } = useTranslation();
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [localTranslations, setLocalTranslations] = useState<Record<string, string>>({});
@@ -67,11 +67,16 @@ export const UITextEditor: React.FC<UITextEditorProps> = () => {
       
       console.log('✅ Static translations saved:', data);
       
-      // Refresh translations to load the new changes
-      await refreshTranslations();
+      // Update local state immediately
+      setLocalTranslations(localTranslations);
       setHasChanges(false);
       
-      alert(`UI text changes saved for ${currentLanguage.toUpperCase()}!\n${data.data.updatedKeys} keys updated.`);
+      // Refresh translations from API to get the latest changes
+      console.log('🔄 Refreshing translations from API...');
+      await refreshTranslations();
+      
+      // Show success message
+      alert(`UI text changes saved for ${currentLanguage.toUpperCase()}!\n${data.data.updatedKeys} keys updated.\n\nChanges are now live!`);
     } catch (error) {
       console.error('Failed to save UI text changes:', error);
       alert(`Failed to save changes: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -106,10 +111,22 @@ export const UITextEditor: React.FC<UITextEditorProps> = () => {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <Globe className="w-5 h-5" />
-              <span>UI Text Editor</span>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              UI Text Editor
             </CardTitle>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-600">
+                Current nav.tasks: <strong>{t('nav.tasks')}</strong>
+              </div>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+                size="sm"
+              >
+                Force Refresh
+              </Button>
+            </div>
             <div className="flex items-center space-x-2">
               {/* Language Selector */}
               <select

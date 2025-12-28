@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Language, Translation } from '../types';
+import type { Language } from '../types';
 import { translationsAPI } from '../lib/api';
 import { staticTranslations } from '../locales';
 
@@ -60,33 +60,68 @@ export const useTranslationStore = create<TranslationState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const response = await translationsAPI.getTranslations(lang);
-          if (response.success && response.data) {
-            // Convert array of translations to key-value pairs
-            const translationsMap: Record<string, string> = {};
-            response.data.forEach((translation: Translation) => {
-              if (translation.key) {
-                translationsMap[translation.key.key_name] = translation.value;
+          // ALWAYS load static translations from API (never use bundled)
+          let staticLangTranslations = {};
+          console.log(`🔍 Attempting to load static translations from API for ${lang}`);
+          try {
+            const token = localStorage.getItem('token');
+            console.log(`🔑 Using token: ${token ? 'Present' : 'Missing'}`);
+            
+            const staticResponse = await fetch(`/api/static-translations/${lang}?t=${Date.now()}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+              },
+            });
+            
+            console.log(`🌐 Static API response status: ${staticResponse.status}`);
+            
+            if (staticResponse.ok) {
+              const staticData = await staticResponse.json();
+              console.log(`📄 Static API response:`, staticData);
+              
+              if (staticData.success) {
+                staticLangTranslations = staticData.data.translations;
+                console.log(`✅ Loaded ${Object.keys(staticLangTranslations).length} static translations from API for ${lang}`);
+                console.log(`🔍 Sample translations:`, Object.keys(staticLangTranslations).slice(0, 5));
+                console.log(`🎯 nav.tasks value from API:`, (staticLangTranslations as Record<string, string>)['nav.tasks']);
+              } else {
+                console.warn(`⚠️ Static API returned success=false:`, staticData);
+                // Still try bundled as last resort
+                staticLangTranslations = staticTranslations[lang] || {};
               }
-            });
-            
-            // Merge with static translations
-            const staticLangTranslations = staticTranslations[lang] || {};
-            const mergedTranslations = { ...staticLangTranslations, ...translationsMap };
-            
-            set({ 
-              translations: mergedTranslations, 
-              isLoading: false,
-              lastUpdated: Date.now()
-            });
-          } else {
-            // Fallback to static translations only
-            const staticLangTranslations = staticTranslations[lang] || staticTranslations.en;
-            set({ 
-              translations: staticLangTranslations, 
-              isLoading: false 
-            });
+            } else {
+              const errorText = await staticResponse.text();
+              console.warn(`⚠️ Static API failed with status ${staticResponse.status}:`, errorText);
+              // Still try bundled as last resort
+              staticLangTranslations = staticTranslations[lang] || {};
+            }
+          } catch (staticError) {
+            console.warn('❌ Failed to load static translations from API:', staticError);
+            // Last resort: use bundled static translations
+            staticLangTranslations = staticTranslations[lang] || {};
+            console.log(`🔄 Using bundled fallback: ${Object.keys(staticLangTranslations).length} translations`);
+            console.log(`🔄 Bundled nav.tasks value:`, (staticLangTranslations as Record<string, string>)['nav.tasks']);
           }
+          
+          // Use only static translations (no database translations for UI text)
+          console.log(`🔄 Using static translations only for ${lang}:`, {
+            'nav.tasks': (staticLangTranslations as Record<string, string>)['nav.tasks'],
+            'nav.dashboard': (staticLangTranslations as Record<string, string>)['nav.dashboard'],
+            'total_keys': Object.keys(staticLangTranslations).length
+          });
+          
+          set({ 
+            translations: staticLangTranslations, 
+            isLoading: false,
+            lastUpdated: Date.now()
+          });
+          
+          // Force all components to re-render by triggering a state change
+          setTimeout(() => {
+            set({ lastUpdated: Date.now() });
+          }, 100);
         } catch (error: any) {
           // Fallback to static translations on error
           const staticLangTranslations = staticTranslations[lang] || staticTranslations.en;
@@ -101,7 +136,16 @@ export const useTranslationStore = create<TranslationState>()(
       refreshTranslations: async () => {
         const { currentLanguage } = get();
         console.log('🔄 Refreshing translations for language:', currentLanguage);
+        
+        // Force reload translations from API and rebuild the app
         await get().loadTranslations(currentLanguage);
+        
+        // Force a complete page reload to ensure all components get new translations
+        console.log('🔄 Force reloading page to apply translation changes...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+        
         // Force a complete re-render by updating timestamp
         set({ lastUpdated: Date.now() });
       },

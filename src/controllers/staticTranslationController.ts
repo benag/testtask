@@ -4,7 +4,17 @@ import path from 'path';
 
 export class StaticTranslationController {
   private getTranslationFilePath(languageCode: string): string {
-    return path.join(__dirname, '../../client/src/locales', `${languageCode}.json`);
+    // In development, the files are in the source directory
+    // In production, they might be in a different location
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    if (isDev) {
+      // Development: files are in the source directory
+      return path.join(process.cwd(), 'client/src/locales', `${languageCode}.json`);
+    } else {
+      // Production: files might be in the built directory
+      return path.join(__dirname, '../../client/src/locales', `${languageCode}.json`);
+    }
   }
 
   async getStaticTranslations(req: Request, res: Response): Promise<void> {
@@ -20,10 +30,15 @@ export class StaticTranslationController {
       }
 
       const filePath = this.getTranslationFilePath(languageCode);
+      console.log(`📁 Looking for translation file at: ${filePath}`);
       
       try {
         const fileContent = await fs.readFile(filePath, 'utf-8');
         const translations = JSON.parse(fileContent);
+        console.log(`✅ Successfully loaded ${Object.keys(translations).length} translations for ${languageCode}`);
+        console.log(`🎯 nav.tasks value from file:`, translations['nav.tasks']);
+        console.log(`🔍 First 10 translation keys:`, Object.keys(translations).slice(0, 10));
+        console.log(`🔍 File content preview:`, fileContent.substring(0, 200) + '...');
 
         res.json({
           success: true,
@@ -33,9 +48,10 @@ export class StaticTranslationController {
           }
         });
       } catch (fileError) {
+        console.error(`❌ Failed to load translation file for ${languageCode}:`, fileError);
         res.status(404).json({
           success: false,
-          error: `Translation file not found for language: ${languageCode}`
+          error: `Translation file not found for language: ${languageCode}. Path: ${filePath}`
         });
       }
     } catch (error) {
@@ -61,11 +77,13 @@ export class StaticTranslationController {
       }
 
       const filePath = this.getTranslationFilePath(languageCode);
+      console.log(`💾 Saving translations to: ${filePath}`);
       
       // Create a backup of the original file
       const backupPath = `${filePath}.backup.${Date.now()}`;
       try {
         await fs.copyFile(filePath, backupPath);
+        console.log(`📎 Backup created: ${backupPath}`);
       } catch (backupError) {
         console.warn('Could not create backup file:', backupError);
       }
@@ -73,6 +91,18 @@ export class StaticTranslationController {
       // Write the updated translations
       const formattedJson = JSON.stringify(translations, null, 2);
       await fs.writeFile(filePath, formattedJson + '\n', 'utf-8');
+      console.log(`✅ Successfully saved ${Object.keys(translations).length} translations for ${languageCode}`);
+
+      // Clear require cache to force reload of the JSON file
+      const absolutePath = require.resolve(filePath);
+      delete require.cache[absolutePath];
+      
+      // Also clear any Node.js module cache for the locales
+      Object.keys(require.cache).forEach(key => {
+        if (key.includes('/locales/') && key.endsWith('.json')) {
+          delete require.cache[key];
+        }
+      });
 
       res.json({
         success: true,
@@ -80,7 +110,8 @@ export class StaticTranslationController {
         data: {
           languageCode,
           updatedKeys: Object.keys(translations).length,
-          backupCreated: true
+          backupCreated: true,
+          timestamp: Date.now()
         }
       });
     } catch (error) {
