@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, User } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { useTranslation } from '../../hooks/useTranslation';
-import { Button } from '../ui/Button';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { RoleBadge } from '../ui/RoleBadge';
+import { Button } from '../ui/Button';
 
 export const Header: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuthStore();
@@ -65,6 +66,7 @@ export const Header: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-gray-600" />
                   <span className="text-sm text-gray-700">{user?.email}</span>
+                  {user?.role && <RoleBadge role={user.role as 'admin' | 'user'} />}
                 </div>
                 <Button
                   variant="outline"

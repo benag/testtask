@@ -12,6 +12,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Dashboard } from './pages/Dashboard';
 import { Tasks } from './pages/Tasks';
 import { AdminPanel } from './pages/AdminPanel';
+import { Unauthorized } from './pages/Unauthorized';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ function App() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/admin/login" element={<AdminLoginForm />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           
           {/* Protected routes */}
           <Route
