@@ -10,11 +10,13 @@ interface TranslationState {
   translations: Record<string, string>;
   isLoading: boolean;
   error: string | null;
+  lastUpdated: number; // Add timestamp to force re-renders
 
   // Actions
   setLanguage: (languageCode: string) => void;
   loadLanguages: () => Promise<void>;
   loadTranslations: (languageCode?: string) => Promise<void>;
+  refreshTranslations: () => Promise<void>; // Add refresh function
   getTranslation: (key: string, fallback?: string) => string;
   clearError: () => void;
 }
@@ -29,9 +31,10 @@ export const useTranslationStore = create<TranslationState>()(
       translations: {},
       isLoading: false,
       error: null,
+      lastUpdated: Date.now(),
 
       setLanguage: (languageCode: string) => {
-        set({ currentLanguage: languageCode });
+        set({ currentLanguage: languageCode, lastUpdated: Date.now() });
         get().loadTranslations(languageCode);
       },
 
@@ -73,7 +76,8 @@ export const useTranslationStore = create<TranslationState>()(
             
             set({ 
               translations: mergedTranslations, 
-              isLoading: false 
+              isLoading: false,
+              lastUpdated: Date.now()
             });
           } else {
             // Fallback to static translations only
@@ -92,6 +96,14 @@ export const useTranslationStore = create<TranslationState>()(
             isLoading: false,
           });
         }
+      },
+
+      refreshTranslations: async () => {
+        const { currentLanguage } = get();
+        console.log('🔄 Refreshing translations for language:', currentLanguage);
+        await get().loadTranslations(currentLanguage);
+        // Force a complete re-render by updating timestamp
+        set({ lastUpdated: Date.now() });
       },
 
       getTranslation: (key: string, fallback?: string) => {

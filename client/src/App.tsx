@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { useTranslationStore } from './stores/translationStore';
+import { TranslationProvider } from './components/providers/TranslationProvider';
 import { Layout } from './components/layout/Layout';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
@@ -34,8 +35,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
+      <TranslationProvider>
+        <Router>
+          <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
@@ -78,8 +80,9 @@ function App() {
           
           {/* Default redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </TranslationProvider>
     </QueryClientProvider>
   );
 }

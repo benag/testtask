@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, RefreshCw } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export const LanguageSwitcher: React.FC = () => {
-  const { currentLanguage, setLanguage, languages, loadLanguages, t } = useTranslation();
+  const { currentLanguage, setLanguage, languages, loadLanguages, refreshTranslations, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadLanguages();
@@ -15,10 +16,35 @@ export const LanguageSwitcher: React.FC = () => {
     setIsOpen(false);
   };
 
+  const handleRefreshTranslations = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshTranslations();
+      console.log('✅ Translations refreshed successfully');
+    } catch (error) {
+      console.error('❌ Failed to refresh translations:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const currentLang = languages.find(lang => lang.code === currentLanguage);
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center space-x-2">
+      {/* Refresh Translations Button */}
+      <button
+        onClick={handleRefreshTranslations}
+        disabled={isRefreshing}
+        className={`p-2 text-sm text-gray-600 hover:text-gray-900 rounded-md transition-colors ${
+          isRefreshing ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
+        title={t('language.refresh', 'Refresh translations')}
+      >
+        <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+      </button>
+      
+      {/* Language Switcher */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 rounded-md transition-colors"

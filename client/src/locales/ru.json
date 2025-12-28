@@ -22,6 +22,7 @@
   "page.tasks.title": "Мои задачи",
   "page.admin.title": "Панель администратора",
   "language.switcher": "Язык",
+  "language.refresh": "Обновить переводы",
   "task.status.todo": "К выполнению",
   "task.status.in_progress": "В процессе",
   "task.status.done": "Выполнено",

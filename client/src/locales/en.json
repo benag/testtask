@@ -22,6 +22,7 @@
   "page.tasks.title": "My Tasks",
   "page.admin.title": "Admin Panel",
   "language.switcher": "Language",
+  "language.refresh": "Refresh translations",
   "task.status.todo": "To Do",
   "task.status.in_progress": "In Progress",
   "task.status.done": "Done",

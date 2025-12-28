@@ -61,18 +61,35 @@ app.use('/api', routes);
 
 // Health endpoints (before catch-all)
 app.get('/health', (req, res) => {
-  console.log('📥 Direct health check hit');
-  res.status(200).json({
+  console.log('🟢 Health check requested');
+  res.json({
     success: true,
-    message: 'API is running',
+    message: 'Task Manager API is running',
     timestamp: new Date().toISOString(),
-    port: process.env.PORT || config.port
+    version: '1.0.0',
+    environment: config.nodeEnv,
+    port: parseInt(process.env.PORT || config.port.toString(), 10)
   });
 });
 
 app.get('/ping', (req, res) => {
-  console.log('🏓 Ping endpoint hit');
-  res.status(200).send('pong');
+  console.log('🏓 Ping requested');
+  res.json({ success: true, message: 'pong', timestamp: new Date().toISOString() });
+});
+
+// Railway health check
+app.get('/', (req, res) => {
+  console.log('🏠 Root endpoint accessed');
+  res.json({
+    success: true,
+    message: 'Task Manager is running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      api: '/api',
+      admin: '/admin/login'
+    }
+  });
 });
 
 // Serve static files from React build
@@ -139,18 +156,30 @@ console.log(`🔌 Attempting to bind to port ${PORT} on 0.0.0.0`);
 let server: any;
 
 try {
-  server = app.listen(PORT, () => {
+  server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server successfully running on port ${PORT}`);
     console.log(`📊 Environment: ${config.nodeEnv}`);
     console.log(`🌐 CORS origin: ${config.cors.origin}`);
     console.log(`🔍 Railway PORT env: ${process.env.PORT}`);
     console.log(`🔍 Config port: ${config.port}`);
+    console.log(`🔗 Server accessible at: http://0.0.0.0:${PORT}`);
     console.log('🎆 Server startup complete!');
   });
   
   server.on('error', (error: any) => {
     console.error('❌ Server error:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use`);
+    }
     process.exit(1);
+  });
+  
+  server.on('connection', (socket: any) => {
+    console.log('🔗 New connection established');
+  });
+  
+  server.on('request', (req: any) => {
+    console.log(`📞 Incoming request: ${req.method} ${req.url}`);
   });
 } catch (error) {
   console.error('❌ Failed to start server:', error);
