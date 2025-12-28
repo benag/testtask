@@ -1,12 +1,13 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Users, BarChart3, Globe, Key } from 'lucide-react';
+import { Users, BarChart3, Globe, Key, Type } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { Card, CardContent } from '../components/ui/Card';
 import { AdminStats } from '../components/admin/AdminStats';
 import { UserManager } from '../components/admin/UserManager';
 import { LanguageManager } from '../components/admin/LanguageManager';
 import { TranslationKeyManager } from '../components/admin/TranslationKeyManager';
+import { UITextEditor } from '../components/admin/UITextEditor';
 
 export const AdminPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -24,6 +25,12 @@ export const AdminPanel: React.FC = () => {
       href: '/admin/keys',
       icon: Key,
       current: location.pathname === '/admin/keys',
+    },
+    {
+      name: 'UI Text Editor',
+      href: '/admin/ui-text',
+      icon: Type,
+      current: location.pathname === '/admin/ui-text',
     },
     {
       name: 'Languages',
@@ -75,6 +82,7 @@ export const AdminPanel: React.FC = () => {
       <Routes>
         <Route path="/" element={<AdminStats />} />
         <Route path="/keys" element={<TranslationKeyManager />} />
+        <Route path="/ui-text" element={<UITextEditor />} />
         <Route path="/languages" element={<LanguageManager />} />
         <Route path="/users" element={<UserManager />} />
       </Routes>

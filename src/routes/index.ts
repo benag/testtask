@@ -4,6 +4,7 @@ import taskRoutes from './tasks';
 import adminRoutes from './admin';
 import translationRoutes from './translations';
 import aiTranslationRoutes from './aiTranslation';
+import staticTranslationRoutes from './staticTranslations';
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use('/tasks', taskRoutes);
 router.use('/admin', adminRoutes);
 router.use('/translations', translationRoutes);
 router.use('/ai-translations', aiTranslationRoutes);
+router.use('/static-translations', staticTranslationRoutes);
 
 export default router;
