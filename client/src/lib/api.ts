@@ -17,8 +17,8 @@ import type {
 // Smart API URL detection - local vs production
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const API_BASE_URL = isLocalhost 
-  ? 'http://localhost:3000/api'  // Local development
-  : 'https://testtask-production-a887.up.railway.app/api'; // Railway production
+  ? 'http://localhost:3000/api'
+  : '/api';
 
 console.log('🔗 API Base URL:', API_BASE_URL);
 
