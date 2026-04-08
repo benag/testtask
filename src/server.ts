@@ -77,21 +77,6 @@ app.get('/ping', (req, res) => {
   res.json({ success: true, message: 'pong', timestamp: new Date().toISOString() });
 });
 
-// Railway health check
-app.get('/', (req, res) => {
-  console.log('🏠 Root endpoint accessed');
-  res.json({
-    success: true,
-    message: 'Task Manager is running',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      api: '/api',
-      admin: '/admin/login'
-    }
-  });
-});
-
 // Serve static files from React build
 const clientBuildPath = path.join(__dirname, '../client/dist');
 console.log('📁 Serving static files from:', clientBuildPath);
@@ -110,6 +95,36 @@ try {
 }
 
 app.use(express.static(clientBuildPath));
+
+// Railway health check / root handler
+app.get('/', (req, res) => {
+  console.log('🏠 Root endpoint accessed');
+
+  const indexPath = path.join(clientBuildPath, 'index.html');
+  const acceptsHtml = (req.headers.accept || '').includes('text/html');
+
+  try {
+    const fs = require('fs');
+    const indexExists = fs.existsSync(indexPath);
+    if (acceptsHtml && indexExists) {
+      res.sendFile(indexPath);
+      return;
+    }
+  } catch (error) {
+    console.error('❌ Error serving index.html:', error);
+  }
+
+  res.json({
+    success: true,
+    message: 'Task Manager is running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      api: '/api',
+      admin: '/admin/login'
+    }
+  });
+});
 
 // Catch-all handler: send back React's index.html file for SPA routing
 app.get('*', (req, res) => {

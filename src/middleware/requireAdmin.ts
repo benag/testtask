@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import { User } from '../types';
 
-export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
+// Extend Request interface locally to include user property
+interface AuthenticatedRequest extends Request {
+  user?: User;
+}
+
+export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   try {
     // Check if user is authenticated (should be handled by authenticateToken middleware first)
     if (!req.user) {
